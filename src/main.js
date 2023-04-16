@@ -6,7 +6,7 @@ import { Worker, isMainThread, parentPort } from "node:worker_threads"
  * @param {number} [input.port]
  * @param {URL|null} [input.storage]
  */
-const supervise = async ({ port = 9000, storage = null } = {}) => {
+const supervise = async ({ port = 8000, storage = null } = {}) => {
   const { createServer } = await import("node:http")
   const { networkInterfaces, tmpdir } = await import("node:os")
   const { pathToFileURL } = await import("node:url")

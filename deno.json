@@ -1,0 +1,12 @@
+{
+  "imports": {
+    "@ucanto/principal": "https://esm.sh/@ucanto/principal",
+    "@ucanto/core": "https://esm.sh/@ucanto/core",
+    "@ucanto/server": "https://esm.sh/@ucanto/server",
+    "@ucanto/client": "https://esm.sh/@ucanto/client",
+    "@ucanto/transport": "https://esm.sh/@ucanto/transport",
+    "@ucanto/validator": "https://esm.sh/@ucanto/validator",
+    "@ucanto/interface": "https://esm.sh/@ucanto/interface",
+    "@ucanto/transport/car": "https://esm.sh/@ucanto/transport/car"
+  }
+}

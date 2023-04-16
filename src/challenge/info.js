@@ -8,28 +8,30 @@ import { ed25519 } from "@ucanto/principal"
 /**
  * @param  {string} url
  */
-export const main = async (url = `http://localhost:9000/`) => {
+export const main = async (url = `http://localhost:8000/`) => {
   const principal = await ed25519.generate()
+  console.log(url.href)
   const response = await fetch(new URL("/.well-known/did.json", url))
   const data = await response.json()
-  const { id, serviceEndpoint } = data.service[0]
-  const client = Client.connect({
-    codec: CAR.outbound,
-    id: DID.parse(id),
-    channel: HTTP.open({ url: new URL(serviceEndpoint) }),
-  })
+  console.log(data)
+  // const { id, serviceEndpoint } = data.service[0]
+  // const client = Client.connect({
+  //   codec: CAR.outbound,
+  //   id: DID.parse(id),
+  //   channel: HTTP.open({ url: new URL(serviceEndpoint) }),
+  // })
 
-  const hello = Client.invoke({
-    issuer: principal,
-    audience: client.id,
-    capability: {
-      with: principal.did(),
-      can: "provider/info",
-    },
-  })
+  // const hello = Client.invoke({
+  //   issuer: principal,
+  //   audience: client.id,
+  //   capability: {
+  //     with: principal.did(),
+  //     can: "provider/info",
+  //   },
+  // })
 
-  const [result] = await client.execute(hello)
-  console.log(JSON.stringify(result.out, null, 2))
+  // const [result] = await client.execute(hello)
+  // console.log(JSON.stringify(result.out, null, 2))
 }
 
 main(...process.argv.slice(2))

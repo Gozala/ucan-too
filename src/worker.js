@@ -1,10 +1,16 @@
 import { ed25519 } from "@ucanto/principal"
-import { sha256 } from "@ucanto/core"
+import { sha256, CBOR } from "@ucanto/core"
 import * as Server from "@ucanto/server"
 import * as service from "./service.js"
 import * as CAR from "@ucanto/transport/car"
 import * as Effect from "./service/effect.js"
 import * as API from "./service/api.js"
+const CORS = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "*",
+  "Access-Control-Allow-Headers": "*",
+}
+
 
 const seed = "ipfs-thing workshop 2019"
 const secret = await sha256.digest(new TextEncoder().encode(seed))
@@ -32,9 +38,12 @@ export const fetch = async request => {
       return get(request)
     case "HEAD":
       return head()
+    case "OPTIONS":
+      return options()
     default:
       return new Response(`Method ${request.method} is not supported`, {
         status: 405,
+        headers: CORS,
       })
   }
 }
@@ -44,12 +53,22 @@ export const fetch = async request => {
  * @param {Request} request
  */
 const post = async request => {
+  const bytes = new Uint8Array(await request.arrayBuffer())
+  
+  console.log(CBOR.decode(CAR.codec.decode(bytes).roots[0].bytes))
+
   const response = await server.request({
     headers: Object.fromEntries(request.headers.entries()),
-    body: new Uint8Array(await request.arrayBuffer()),
+    body: bytes,
   })
 
-  return new Response(response.body, response)
+  return new Response(response.body, {
+    status: response.status,
+    headers: {
+      ...CORS,
+      ...response.headers,
+    },
+  })
 }
 
 /**
@@ -59,7 +78,10 @@ const post = async request => {
 const get = async request => {
   const url = new URL(request.url)
   switch (url.pathname) {
-    case "/.well-known/did.json":
+    case "/.well-known/did.json": {
+      const serviceEndpoint = new URL("/", url)
+      serviceEndpoint.hostname = "localhost"
+
       return new Response(
         JSON.stringify(
           {
@@ -69,7 +91,7 @@ const get = async request => {
               {
                 id: server.id.did(),
                 type: "ucanto",
-                serviceEndpoint: new URL("/", url).href,
+                serviceEndpoint: serviceEndpoint.href,
               },
             ],
           },
@@ -78,10 +100,12 @@ const get = async request => {
         ),
         {
           headers: {
+            ...CORS,
             "content-type": "application/json",
           },
         }
       )
+    }
     case "/event-stream": {
       return events()
     }
@@ -90,7 +114,9 @@ const get = async request => {
       const writer = writable.getWriter()
       writer.write("hello")
       writer.close()
-      return new Response(readable, {})
+      return new Response(readable, {
+        headers: CORS
+      })
     }
     case "/":
       return new Response(
@@ -100,6 +126,7 @@ const get = async request => {
         }),
         {
           headers: {
+            ...CORS,
             "content-type": "text/html",
           },
         }
@@ -113,11 +140,24 @@ const head = () => {
   return new Response(null, {
     status: 200,
     headers: {
+      ...CORS,
       "content-type": "text/plain",
       "x-did": server.id.did(),
     },
   })
 }
+
+const options = () => {
+  return new Response(null, {
+    status: 200,
+    headers: {
+      ...CORS,
+      "content-type": "text/plain",
+      "x-did": server.id.did(),
+    },
+  })
+}
+
 
 const events = () => {
   const { readable, writable } = new TransformStream()
@@ -134,6 +174,7 @@ const events = () => {
 
   return new Response(readable, {
     headers: {
+      ...CORS,
       "content-type": "text/event-stream",
       "cache-control": "no-store",
     },
@@ -149,12 +190,14 @@ const resource = async ({ pathname }) => {
   if (resource.ok) {
     return new Response(resource.ok.bytes, {
       status: 200,
-      headers: { "content-type": contentTypeOf(resource.ok.url.href) },
+      headers: { 
+        ...CORS,
+        "content-type": contentTypeOf(resource.ok.url.href) },
     })
   } else {
     return new Response("Not Found", {
       status: 404,
-      headers: { "content-type": "text/plain" },
+      headers: { ...CORS, "content-type": "text/plain" },
     })
   }
 }
