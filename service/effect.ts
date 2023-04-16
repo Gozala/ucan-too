@@ -1,5 +1,5 @@
 
-import { API, ok, error, CBOR, DB } from "../deps.ts"
+import { API, ok, error, CBOR } from "../deps.ts"
 
 
 // export const activateDB = () => {
