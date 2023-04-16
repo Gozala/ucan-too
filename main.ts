@@ -1,4 +1,4 @@
-import { serve, API, ed25519, sha256, Server, CAR } from "./import.ts"
+import { serve, API, ed25519, sha256, Server, CAR } from "./deps.ts"
 import * as Effect from "./service/effect.ts"
 import * as service from "./service.ts"
 
@@ -10,10 +10,6 @@ const server = Server.create({
   service,
   codec: CAR.inbound,
 })
-
-
-
-
 
 /**
  * @param {Request} request
@@ -35,7 +31,6 @@ export const fetch = (request: Request) => {
       })
   }
 }
-
 
 const head = () => {
   return new Response(null, {
@@ -59,7 +54,6 @@ const options = () => {
   })
 }
 
-
 export const post = async (request: Request) => {
   const response = await server.request({
     headers: Object.fromEntries(request.headers.entries()),
@@ -70,10 +64,9 @@ export const post = async (request: Request) => {
     headers: {
       ...CORS,
       ...response.headers,
-    }
+    },
   })
 }
-
 
 export const get = (request: Request) => {
   const url = new URL(request.url)
@@ -116,8 +109,6 @@ export const did = (request: Request) => {
   )
 }
 
-
-
 export const events = (_: Request) => {
   const events = Effect.subscribe()
 
@@ -152,21 +143,26 @@ const CORS = {
 
 export const leaderboard = async (_: Request) => {
   return new Response(
-        renderLeaderBoard({
-          did: server.id.did(),
-          state: await Effect.query(),
-        }),
-        {
-          headers: {
-            ...CORS,
-            "content-type": "text/html",
-          },
-        }
-      )
+    renderLeaderBoard({
+      did: server.id.did(),
+      state: await Effect.query(),
+    }),
+    {
+      headers: {
+        ...CORS,
+        "content-type": "text/html",
+      },
+    }
+  )
 }
 
-
-const renderLeaderBoard = ({ did, state }: { did:string, state: API.Model }) => `<html>
+const renderLeaderBoard = ({
+  did,
+  state,
+}: {
+  did: string
+  state: API.Model
+}) => `<html>
   <head>
     <title>Leaderboard</title>
     <script src="/main.js" type="module"></script>
@@ -176,7 +172,7 @@ const renderLeaderBoard = ({ did, state }: { did:string, state: API.Model }) => 
   <p>Provider DID: ${did}</p>
   <ul id="board">
   ${state
-    .map(({name, score}) => `<li>${name} - ${score} ⭐️</li>`)
+    .map(({ name, score }) => `<li>${name} - ${score} ⭐️</li>`)
     .join("\n")}
   </ul>
   </body>
@@ -185,7 +181,7 @@ const renderLeaderBoard = ({ did, state }: { did:string, state: API.Model }) => 
 /**
  * @param {string} path
  */
-const contentTypeOf = (path:string) => {
+const contentTypeOf = (path: string) => {
   if (path.endsWith(".css")) return "text/css"
   if (path.endsWith(".js")) return "application/javascript"
   if (path.endsWith(".png")) return "image/png"
@@ -194,7 +190,6 @@ const contentTypeOf = (path:string) => {
   return "text/plain"
 }
 
-
 const resource = async (request: Request) => {
   const pathname = new URL(request.url).pathname
   const result = await Effect.resource(pathname)
@@ -202,17 +197,17 @@ const resource = async (request: Request) => {
   if (resource.ok) {
     return new Response(resource.ok.bytes, {
       status: 200,
-      headers: { 
+      headers: {
         ...CORS,
-        "content-type": contentTypeOf(resource.ok.url.href)
+        "content-type": contentTypeOf(resource.ok.url.href),
       },
     })
   } else {
     return new Response("Not Found", {
       status: 404,
-      headers: { 
+      headers: {
         ...CORS,
-        "content-type": "text/plain"
+        "content-type": "text/plain",
       },
     })
   }

@@ -1,4 +1,4 @@
-import { Server, ok, error } from "../import.ts"
+import { Server, ok, error } from "../deps.ts"
 import * as Capability from "../capabilities.ts"
 import * as Effect from "./effect.ts"
 

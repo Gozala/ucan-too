@@ -1,4 +1,4 @@
-import { capability, Schema } from "./import.ts"
+import { capability, Schema } from "./deps.ts"
 
 const Agent = Schema.did({ method: "key" })
 

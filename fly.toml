@@ -1,0 +1,36 @@
+# fly.toml file generated for ucan-too on 2023-04-16T14:05:35+02:00
+
+app = "ucan-too"
+primary_region = "ams"
+
+[env]
+  PORT = "8080"
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  processes = ["app"]
+
+[processes]
+  app = "run --allow-read --allow-write --allow-net main.ts"
+
+[[services]]
+  processes = ["app"]
+  internal_port = 8080
+  protocol = "tcp"
+
+  [services.concurrency]
+    hard_limit = 25
+    soft_limit = 20
+
+  [[services.ports]]
+    handlers = ["http"]
+    port = "80"
+
+  [[services.ports]]
+    handlers = ["tls", "http"]
+    port = "443"
+
+  [[services.tcp_checks]]
+    interval = 10000
+    timeout = 2000
