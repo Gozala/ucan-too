@@ -1,5 +1,5 @@
 
-import { API, ok, error, CBOR } from "../deps.ts"
+import { API, ok, error, CBOR } from "./deps.ts"
 
 
 // export const activateDB = () => {
@@ -15,7 +15,9 @@ import { API, ok, error, CBOR } from "../deps.ts"
 // }
 // const store = activateDB()
 
-const store = new Map()
+export const store = new Map()
+export const mailboxes: Map<string, Map<string, Uint8Array>> = new Map()
+
 
 export const count = async () => {
   return await store.size

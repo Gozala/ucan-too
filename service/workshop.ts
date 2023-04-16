@@ -1,6 +1,6 @@
 import { Server, ok, error, Md5 } from "../deps.ts"
-import * as Capability from "../capabilities.ts"
-import * as Effect from "./effect.ts"
+import * as Capability from "../capability/workshop.ts"
+import * as Effect from "../effect.ts"
 
 export const enter = Server.provide(
   Capability.Enter,

@@ -1,4 +1,4 @@
-export * from "https://cdn.skypack.dev/@ucanto/interface"
+export * from "https://esm.sh/@ucanto/interface@7.0.1"
 
 export type Model = Participant[]
 

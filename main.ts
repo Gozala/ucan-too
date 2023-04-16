@@ -1,5 +1,5 @@
 import { serve, API, ed25519, sha256, Server, CAR } from "./deps.ts"
-import * as Effect from "./service/effect.ts"
+import * as Effect from "./effect.ts"
 import * as service from "./service.ts"
 
 const seed = "ipfs-thing workshop 2019"
