@@ -1,13 +1,16 @@
 export * from "https://cdn.skypack.dev/@ucanto/interface"
 
-export type Model = Participant[]
+export type Model = Array<Team | Tombstone>
 
-export interface Participant {
-  name: string
-  did: string
+export interface Team {
+  name: Name
+  members: Set<DID>
   score: number
 
-  memo: unknown
+  memo: Record<string, unknown>
 }
 
+export type Tombstone = null
+
 export type Name = string
+export type DID = string

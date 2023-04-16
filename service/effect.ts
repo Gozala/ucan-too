@@ -23,26 +23,37 @@ export const count = async () => {
   // return <number> row[0]
 }
 
-export const put = async (data: API.Participant) => {
+export const set = async (key: string, data: API.Team) => {
   // await store.query(
   //   "INSERT OR IGNORE INTO workshop (did, name, score, memo) VALUES (?, ?, ?, ?)",
   //   [data.did, data.name, data.score, CBOR.encode(data.memo)]
   // )
-  if (!store.has(data.did)) {
-    store.set(data.did, data)
+  if (!store.has(key)) {
+    store.set(key, data)
   }
   await undefined
 }
 
+export const get = async (did: string) => {
+  return store.get(did)
+}
+
 export const update = async (
   did: string,
-  update: (state: API.Participant) => API.Participant
+  update: (state: API.Team) => API.Team
 ) => {
   if (!store.has(did)) {
     throw new Error("DID is not registered")
   }
 
-  await store.set(did, update(store.get(did)))
+  const last = store.get(did)
+  if (last == null) {
+    throw new Error("DID is conspiring with other peers")
+  }
+
+  const state = { ...update(last), did }
+
+  await store.set(did, state)
 
 
   // const [state] = await store.query(
@@ -56,10 +67,11 @@ export const update = async (
   // await store.query(
   //   "UPDATE workshop SET name = ?, score = ?, memo = ? WHERE did = ?",
   //   [next.name, next.score, CBOR.encode(next.memo), did])
+  return state
 }
 
-export const query = async () => {
-  const entries = []
+export const query = async ():Promise<API.Team[]> => {
+  // const entries = []
   // for await (const row of store.query("SELECT did, name, score, memo FROM workshop ORDER BY score DESC")) {
   //   const [did, name, score, memo] = <[string, string, number, Uint8Array]>row
   //   entries.push({
@@ -69,7 +81,7 @@ export const query = async () => {
   //     memo: decodeMemo(memo),
   //   })
   // }
-  return await [...store.values()].sort((a, b) => b.score - a.score)
+  return await [...store.values()].filter(Boolean).sort((a, b) => b.score - a.score)
 }
 
 const decodeMemo = (memo: Uint8Array = CBOR.encode({})) => {

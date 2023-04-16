@@ -23,7 +23,6 @@ interface Participant {
 - Each participant gets delegated some score based on when they join
   - 1st gets 15 points, 2nd 10 points ... 3rd gets 8 points and everyone else gets 5 points.
 
-
 ### Delegation
 
 In this exercise we want to show how delegations work. You can delegate peer `workshop/peer` capability to another peer. When they invoke delegated capability score of both participants gets multiplied. If peer has not entered workshop they score simply doubles for the `did:key` in the `with` field.
