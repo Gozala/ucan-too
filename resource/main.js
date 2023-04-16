@@ -4,8 +4,8 @@ export const main = () => {
     const participants = JSON.parse(data)
 
     document.getElementById("board").innerHTML = `${participants
-      .map(({ did, name, score, md5 }) => {
-        return `<article class="dt w-100 bb b--black-05 pb2 mt2">
+      .map(({ did, name, score, md5, memo }) => {
+        return `<article class="dt w-100 bb b--black-05 ph3 pv2 mt2" style="${memo?.style}">
   <div class="dtc w2 w3-ns v-mid">
     <img src="https://www.gravatar.com/avatar/${md5}?d=retro" class="ba b--black-10 db br2 w2 w3-ns h2 h3-ns"/>
   </div>

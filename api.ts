@@ -7,7 +7,7 @@ export interface Participant {
   did: string
   score: number
   md5: string
-  memo: unknown
+  memo: Record<string, any>
 }
 
 export type Name = string
