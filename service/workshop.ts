@@ -1,6 +1,5 @@
-import * as Server from "@ucanto/server"
+import { Server, ok, error } from "../import.ts"
 import * as Capability from "../capabilities.ts"
-import { ok, error } from "@ucanto/core"
 import * as Effect from "./effect.ts"
 
 export const enter = Server.provide(

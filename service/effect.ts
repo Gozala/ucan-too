@@ -1,6 +1,5 @@
-import * as API from "./api.ts"
-import { ok, error, sha256, CAR, CBOR } from "@ucanto/core"
-import { DB } from "https://deno.land/x/sqlite/mod.ts"
+
+import { API, ok, error, CBOR, DB } from "../import.ts"
 
 const store = new DB("workshop.db")
 store.execute(`CREATE TABLE IF NOT EXISTS workshop (

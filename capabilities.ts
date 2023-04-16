@@ -1,4 +1,4 @@
-import { capability, Schema } from "@ucanto/validator"
+import { capability, Schema } from "./import.ts"
 
 const Agent = Schema.did({ method: "key" })
 

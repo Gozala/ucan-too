@@ -1,4 +1,4 @@
-export * from "@ucanto/interface"
+export * from "https://esm.sh/@ucanto/interface"
 
 export interface Model {
   [key: Name]: Participant

@@ -1,4 +1,4 @@
-import * as Server from "@ucanto/server"
+import { Server } from "../import.ts"
 import * as Capability from "../capabilities.ts"
 import * as Effect from "./effect.ts"
 

@@ -1,9 +1,4 @@
-import { serve } from "https://deno.land/std@0.177.0/http/server.ts"
-import * as API from "./api.ts"
-import { ed25519 } from "@ucanto/principal"
-import { sha256 } from "@ucanto/core"
-import * as Server from "@ucanto/server"
-import { CAR } from "@ucanto/transport"
+import { serve, API, ed25519, sha256, Server, CAR } from "./import.ts"
 import * as Effect from "./service/effect.ts"
 import * as service from "./service.ts"
 
