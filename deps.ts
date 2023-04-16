@@ -1,6 +1,5 @@
 export * as API from "./api.ts"
 export { ok, error, Schema, CBOR } from "https://esm.sh/@ucanto/core@7.0.1"
-// export { DB } from "https://deno.land/x/sqlite/mod.ts"
 export { serve } from "https://deno.land/std@0.177.0/http/server.ts"
 export { capability } from "https://esm.sh/@ucanto/validator@7.0.0"
 export { ed25519 } from "https://esm.sh/@ucanto/principal@7.0.0"
