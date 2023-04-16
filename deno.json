@@ -6,7 +6,6 @@
     "@ucanto/client": "https://esm.sh/@ucanto/client",
     "@ucanto/transport": "https://esm.sh/@ucanto/transport",
     "@ucanto/validator": "https://esm.sh/@ucanto/validator",
-    "@ucanto/interface": "https://esm.sh/@ucanto/interface",
-    "@ucanto/transport/car": "https://esm.sh/@ucanto/transport/car"
+    "@ucanto/interface": "https://esm.sh/@ucanto/interface"
   }
 }

@@ -1,7 +1,7 @@
 import * as Capability from "../capabilities.js"
 import * as Client from "@ucanto/client"
 import { DID } from "@ucanto/core"
-import * as CAR from "@ucanto/transport/car"
+import { CAR } from "@ucanto/transport/car"
 import * as HTTP from "@ucanto/transport/http"
 import { ed25519 } from "@ucanto/principal"
 

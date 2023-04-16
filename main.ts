@@ -3,7 +3,7 @@ import * as API from "./api.ts"
 import { ed25519 } from "@ucanto/principal"
 import { sha256 } from "@ucanto/core"
 import * as Server from "@ucanto/server"
-import * as CAR from "@ucanto/transport/car"
+import { CAR } from "@ucanto/transport"
 import * as Effect from "./service/effect.ts"
 import * as service from "./service.ts"
 
