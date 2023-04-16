@@ -1,4 +1,4 @@
-import { Server, ok, error } from "../deps.ts"
+import { Server, ok, error, Md5 } from "../deps.ts"
 import * as Capability from "../capabilities.ts"
 import * as Effect from "./effect.ts"
 
@@ -14,6 +14,7 @@ export const enter = Server.provide(
         did: capability.with,
         name: capability.with,
         score,
+        md5: new Md5().update(capability.with).toString(),
         memo: {}
       }
       await Effect.put(participant)

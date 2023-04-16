@@ -6,7 +6,7 @@ export interface Participant {
   name: string
   did: string
   score: number
-
+  md5: string
   memo: unknown
 }
 
