@@ -31,6 +31,10 @@ const init = (): API.Model => ({
   },
 })
 
+export const restart = () => {
+  Object.assign(db, init())
+}
+
 export const db = init()
 
 export const add = async (player: API.Player) => {

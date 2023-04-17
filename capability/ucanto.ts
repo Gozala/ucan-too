@@ -5,3 +5,9 @@ export const Info = capability({
   with: Schema.did(),
   nb: Schema.struct({}),
 })
+
+
+export const Restart = capability({
+  can: "ucanto/restart",
+  with: Schema.did(),
+})
