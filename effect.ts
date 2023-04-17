@@ -15,79 +15,118 @@ import { API, ok, error, CBOR } from "./deps.ts"
 // }
 // const store = activateDB()
 
-export const store = new Map()
-export const mailboxes: Map<string, Map<string, Uint8Array>> = new Map()
 
+const init = (): API.Model => ({
+  players: new Map(),
+  achievements: {
+    named: [],
+    delegatedName: [],
+    invokedName: [],
+    painted: [],
+    delegatedPaint: [],
+    invokedPaint: [],
+    delegated: [],
+    claimed: [],
+    delegatedClaim: [],
+  },
+})
 
-export const count = async () => {
-  return await store.size
-  // const [row] = await store.query("SELECT COUNT(*) FROM workshop")
-  // return <number> row[0]
-}
+export const db = init()
 
-export const put = async (data: API.Participant) => {
-  // await store.query(
-  //   "INSERT OR IGNORE INTO workshop (did, name, score, memo) VALUES (?, ?, ?, ?)",
-  //   [data.did, data.name, data.score, CBOR.encode(data.memo)]
-  // )
-  if (!store.has(data.did)) {
-    store.set(data.did, data)
+export const add = async (player: API.Player) => {
+  if (!db.players.has(player.name)) {
+    db.players.set(player.name, player)
+    return player
   }
-  await undefined
+  return await <API.Player>db.players.get(player.name)
 }
 
-export const get = async (did: string) => {
-  return store.get(did)
+export const achieve = async (achievement: keyof API.Achievements, did:API.AgentDID) => {
+  if (!db.achievements[achievement].includes(did)) {
+    db.achievements[achievement].push(did)
+    return await true
+  }
+  return await false
 }
+
+export const send = async (did: API.AgentDID, message: Uint8Array) => {
+  const player = db.players.get(did)
+  if (!player) {
+    return error({ message: `Player ${did} has not enter workshop, please choose a audience that did` })
+  } else {
+    player.inbox.push(message)
+    return await ok({})
+  }
+}
+
+export const receive = async (did: API.AgentDID, limit=10) => {
+  const player = db.players.get(did)
+  if (!player) {
+    return error({ message: `Player ${did} has not enter workshop, please enter first if you want participate` })
+  } else {
+    const messages = []
+    for (const [key, message] of player.inbox.entries()) {
+      messages.push(message)
+      if (messages.length >= limit) {
+        break
+      }
+    }
+    player.inbox.splice(0, messages.length)
+    return await ok({ messages })
+  }
+}
+
 
 export const update = async (
   did: string,
-  update: (state: API.Participant) => API.Participant
+  update: (state: API.Player) => API.Player
 ) => {
-  if (!store.has(did)) {
-    throw new Error("DID is not registered")
+  const { players } = db
+  const player = players.get(did)
+  if (!player) {
+    throw new Error(`Player ${did} has not entered competition`)
   }
 
-  const state = { ...update(store.get(did)), did }
-
-  await store.set(did, state)
+  const state = update(player)
 
 
-  // const [state] = await store.query(
-  //   "SELECT name, score, memo FROM workshop WHERE did = ?",
-  //   [did]
-  // )
-  // const [name, score, blob] = <[string, number, Uint8Array]>state
-  // const memo = CBOR.decode(blob || CBOR.encode({}))
-  // const next = update({ did, name, score, memo })
+  await players.set(did, state)
 
-  // await store.query(
-  //   "UPDATE workshop SET name = ?, score = ?, memo = ? WHERE did = ?",
-  //   [next.name, next.score, CBOR.encode(next.memo), did])
   return state
 }
 
 export const query = async () => {
-  const entries = []
-  // for await (const row of store.query("SELECT did, name, score, memo FROM workshop ORDER BY score DESC")) {
-  //   const [did, name, score, memo] = <[string, string, number, Uint8Array]>row
-  //   entries.push({
-  //     did,
-  //     name,
-  //     score,
-  //     memo: decodeMemo(memo),
-  //   })
-  // }
-  return await [...store.values()].sort((a, b) => b.score - a.score)
+  const entries = <API.Rating[]>[]
+  for (const [did, player] of db.players.entries()) {
+    entries.push({
+      player,
+      did,
+      score: calculateScore(did, db.achievements),
+    })
+  }
+  
+  return await entries
 }
 
-const decodeMemo = (memo: Uint8Array = CBOR.encode({})) => {
-  try {
-    return CBOR.decode(memo)
-  } catch (error) {
-    return { message: <string>error.message}
+const calculateScore = (did:API.AgentDID, achievements: API.Achievements) => {
+  let score = 0
+  for (const rating of Object.values(achievements)) {
+    const position = rating.indexOf(did) + 1
+    const award = position === 0
+      ? 0
+      : position === 1
+      ? 15
+      : position === 2
+      ? 12
+      : position === 3
+      ? 9
+      : 5
+    score += award
   }
+
+  return score
 }
+
 
 export const subscribe = async function* () {
   while (true) {
@@ -101,11 +140,11 @@ export const subscribe = async function* () {
 
 
 export const resource = (path:string) => {
-  const url = new URL(`../resource${path}`, import.meta.url)
+  const url = new URL(`./resource${path}`, import.meta.url)
   console.log("🫣", url.href)
   return Deno.readFile(url)
     .then(bytes => ok({ url: url, bytes }))
-    .catch(error)
+    .catch(cause => error(<Error>cause))
 }
 
 export const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))

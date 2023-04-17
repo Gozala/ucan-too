@@ -1,0 +1,60 @@
+type Capability union {
+  | Ucanto_Info     "ucanto/info"
+  | Workshop_Enter  "workshop/enter"
+  | Workshop_Name   "workshop/name"
+  | Workshop_Paint  "workshop/paint"
+  | Workshop_Edit   "workshop/edit"
+  | Access_Delegate "access/delegate"
+  | Access_Claim    "access/claim"
+} representation inline {
+  discriminantKey "can"
+}
+
+type Workshop_Enter struct {
+  with AgentDID
+}
+
+
+type Workshop_Name struct {
+  with AgentDID
+  nb WorkshopNameInput
+}
+
+type Workshop_Name_Input struct {
+  name string
+}
+
+type Workshop_Paint struct {
+  with AgentDID
+  nb WolkshopPaintInput
+}
+
+type Workshop_Paint_Input struct {
+  color string
+}
+
+type Workshop_Edit struct {
+  with AgentDID
+  nb {String: any}
+}
+
+type AgentDID string
+
+type Ucanto_Info struct {
+  with AgentDID
+  nb unit
+}
+
+type Access_Delegate struct {
+  with AgentDID
+  nb Access_Delegate_Input
+}
+
+type Access_Delegate_Input struct {
+  ucan bytes
+}
+
+type Access_Claim struct {
+  with AgentDID
+  nb unit
+}

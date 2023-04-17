@@ -1,13 +1,49 @@
 export * from "https://esm.sh/@ucanto/interface@7.0.1"
 
-export type Model = Participant[]
+export interface Model {
+  players: Map<AgentDID, Player>
 
-export interface Participant {
+  achievements: Achievements
+}
+
+export interface Achievements {
+  // order in which players named their player
+  named: AgentDID[]
+  delegatedName: AgentDID[]
+  invokedName: AgentDID[]
+
+  // painted player frame
+  painted: AgentDID[]
+
+  // delegated paint
+  delegatedPaint: AgentDID[]
+  invokedPaint: AgentDID[]
+
+  // delegated capability
+  delegated: AgentDID[]
+  // claimed delegation
+  claimed: AgentDID[]
+  delegatedClaim: AgentDID[]
+}
+
+
+export interface Player {
+  
   name: string
-  did: string
+  paint: string
+
+  style: string
+
+  inbox: Uint8Array[]
+
+  store: Record<string, unknown>
+}
+
+export interface Rating {
+  did: AgentDID
   score: number
-  md5: string
-  memo: Record<string, any>
+  player: Player
 }
 
 export type Name = string
+export type AgentDID = string

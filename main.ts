@@ -1,4 +1,4 @@
-import { serve, API, ed25519, sha256, Server, CAR } from "./deps.ts"
+import { serve, ed25519, sha256, Server, CAR } from "./deps.ts"
 import * as Effect from "./effect.ts"
 import * as service from "./service.ts"
 
@@ -77,9 +77,9 @@ export const get = (request: Request) => {
       return events(request)
     }
     case "/":
-      return leaderboard(request)
+      return resource("/index.html")
     default:
-      return resource(request)
+      return resource(url.pathname)
   }
 }
 
@@ -141,62 +141,6 @@ const CORS = {
   "Access-Control-Allow-Headers": "*",
 }
 
-export const leaderboard = async (_: Request) => {
-  return new Response(
-    renderLeaderBoard({
-      did: server.id.did(),
-      state: await Effect.query(),
-    }),
-    {
-      headers: {
-        ...CORS,
-        "content-type": "text/html",
-      },
-    }
-  )
-}
-
-const renderLeaderBoard = ({
-  did,
-  state,
-}: {
-  did: string
-  state: API.Model
-}) => `<!doctype html>
-<html>
-  <head>
-    <title>Leaderboard</title>
-    <link rel="stylesheet" href="/tachyons.min.css">
-    <script src="/main.js" type="module"></script>
-  </head>
-  <body class="w-100 sans-serif ma3">
-  <nav class="pa3 pa4-ns">
-    <a class="link dim black b f1 f-headline-ns tc db mb3 mb4-ns" href="/">Leaderboard</a>
-    <div class="tc pb3">
-      <span class="link gray f6 f5-ns dib mr3">Provider DID: </span><code class="code bg-black-10">${did}</code>
-    </div>
-  </nav>
-  <div id="board" class="mw8 center">
-    ${state
-      .map(({ did, name, score, md5, memo }) => {
-        return `<article class="dt w-100 bb b--black-05 pb2 mt2" style="${memo?.style}">>
-  <div class="dtc w2 w3-ns v-mid">
-    <img src="https://www.gravatar.com/avatar/${md5}?d=retro" class="ba bw2 b--black-10 db br2 w2 w3-ns h2 h3-ns"/>
-  </div>
-  <div class="dtc v-mid pl3">
-    <h1 class="f6 f5-ns fw6 lh-title black mv0">${name === did ? "No Name" : name}</h1>
-    <h2 class="f6 fw4 mt0 mb0 black-60 code">${did}</h2>
-  </div>
-  <div class="dtc v-mid tr">
-    <span class="f4 dib h2 w2 br-100 pa2 bg-near-white ba b--black-10 tc lh-copy">${score}</span>
-  </div>
-</article>`
-      })
-      .join("\n")}
-  </div>
-  </body>
-</html>`
-
 /**
  * @param {string} path
  */
@@ -209,9 +153,8 @@ const contentTypeOf = (path: string) => {
   return "text/plain"
 }
 
-const resource = async (request: Request) => {
-  const pathname = new URL(request.url).pathname
-  const result = await Effect.resource(pathname)
+const resource = async (path: string) => {
+  const result = await Effect.resource(path)
   const resource = result.ok ? result : await Effect.resource("/404.html")
   if (resource.ok) {
     return new Response(resource.ok.bytes, {

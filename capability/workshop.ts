@@ -1,20 +1,28 @@
 import { capability, Schema } from "../deps.ts"
 
-const Participant = Schema.did({ method: "key" })
+const AgentDID = Schema.did({ method: "key" })
 export const Enter = capability({
   can: "workshop/enter",
-  with: Participant,
+  with: AgentDID,
 })
 
 export const Name = capability({
   can: "workshop/name",
-  with: Participant,
+  with: AgentDID,
   nb: Schema.struct({
     name: Schema.string(),
   }),
 })
 
+export const Paint = capability({
+  can: "workshop/paint",
+  with: AgentDID,
+  nb: Schema.struct({
+    color: Schema.string(),
+  })
+})
+
 export const Conspire = capability({
   can: "workshop/conspire",
-  with: Participant,
+  with: AgentDID,
 })

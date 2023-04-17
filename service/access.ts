@@ -1,40 +1,32 @@
 import { Server, ok, error, } from "../deps.ts"
 import * as Capability from "../capability/access.ts"
-import { mailboxes } from "../effect.ts"
+import * as Effect from "../effect.ts"
 import { extract } from "../util.ts"
 
 
 
-export const delegate = Server.provide(Capability.Delegate, async ({ capability }) => {
+export const delegate = Server.provide(Capability.Delegate, async ({ capability, invocation }) => {
   const { ucan } = capability.nb
-  const result = await extract(ucan)
-  if (result.ok) {
-    const delegation = result.ok
+  const extracted = await extract(ucan)
+  if (extracted.ok) {
+    await Effect.achieve("delegated", capability.with)
+    const delegation = extracted.ok
     const to = delegation.audience.did()
-    let inbox = mailboxes.get(to)
-    if (!inbox) {
-      inbox = new Map()
-      mailboxes.set(to, inbox)
-    }
-    inbox.set(`${delegation.root.cid}`, ucan)
+    return await Effect.send(to, ucan)
   }
   return ok({})
 })
 
-export const claim = Server.provide(Capability.Claim, ({ capability }) => {
-  const inbox = mailboxes.get(capability.with)
-  if (inbox) {
-    const ucans = []
-    for (const [key, message] of inbox.entries()) {
-      inbox.delete(key)
-      ucans.push(message)
-      if (ucans.length >= 10) {
-        break
-      }
+export const claim = Server.provide(Capability.Claim, async ({ capability, invocation }) => {
+  const result = await Effect.receive(capability.with)
+  if (result.ok) {
+    if (capability.with !== invocation.issuer.did()) {
+      await Effect.achieve("delegatedClaim", capability.with)
+    } else {
+      await Effect.achieve("claimed", capability.with)
     }
-
-    return ok({ ucans })
+    return ok({ ucan: result.ok.messages })
   } else {
-    return ok({ ucans: [] })
+    return result
   }
 })

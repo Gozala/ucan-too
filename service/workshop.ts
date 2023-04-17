@@ -1,25 +1,19 @@
-import { Server, ok, error, Md5 } from "../deps.ts"
+import { Server, ok, error, API } from "../deps.ts"
 import * as Capability from "../capability/workshop.ts"
 import * as Effect from "../effect.ts"
 
 export const enter = Server.provide(
   Capability.Enter,
-  async ({ capability }) => {
-    const position = await Effect.count() + 1
-    const score =
-      position == 1 ? 15 : position == 2 ? 10 : position == 3 ? 8 : 5
-    
+  async ({ capability }) => {    
     try {
-      const participant = {
-        did: capability.with,
+      const player = await Effect.add({
         name: capability.with,
-        score,
-        md5: new Md5().update(capability.with).toString(),
-        memo: {}
-      }
-      await Effect.put(participant)
-
-      return ok(participant)
+        paint: "",
+        style: "",
+        inbox: [],
+        store: {},
+      })
+      return ok(player)
     } catch (cause) {
       return error({
           message: <string>cause.message
@@ -30,18 +24,46 @@ export const enter = Server.provide(
 
 export const name = Server.provide(
   Capability.Name,
-  async ({ capability }) => {
+  async ({ capability, invocation }) => {
     const { name } = capability.nb
+    console.log("update name to", name)
     if (name.length > 32) {
       return error({
         message: `Your name "${name}" is too long, can you please use shorter one?`
       })
     } else {
+      await Effect.achieve("named", capability.with)
+      if (capability.with !== invocation.issuer.did()) {
+        await Effect.achieve("delegatedName", capability.with)
+        await Effect.achieve("invokedName", invocation.issuer.did())
+      }
       await Effect.update(capability.with, (state) => {
-          return { ...state, name, score: state.name !== capability.with ? state.score + 5 : state.score }
+          return { ...state, name }
       })
+
       return ok({})
     }
   })
+
+
+export const paint = Server.provide(Capability.Paint, async ({ capability, invocation }) => {
+  const { color } = capability.nb
+  if (color.length > 32) {
+    return error({
+      message: `You supposed to supply paint color, what kind of color is "${name}" ?`,
+    })
+  } else {
+    await Effect.achieve("painted", capability.with)
+    if (capability.with !== invocation.issuer.did()) {
+      await Effect.achieve("delegatedPaint", capability.with)
+      await Effect.achieve("invokedPaint", invocation.issuer.did())
+    }
+    await Effect.update(capability.with, state => {
+      return { ...state, paint: color }
+    })
+
+    return ok({})
+  }
+})
 
 

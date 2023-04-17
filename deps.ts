@@ -1,7 +1,6 @@
 export * as API from "./api.ts"
-export { ok, error, Schema, CBOR, Delegation, UCAN } from "https://esm.sh/@ucanto/core@7.0.1"
+export { ok, error, panic, Schema, CBOR, Delegation, UCAN } from "https://esm.sh/@ucanto/core@7.0.1"
 export { serve } from "https://deno.land/std@0.177.0/http/server.ts"
-export { Md5 } from "https://deno.land/std@0.119.0/hash/md5.ts"
 export { capability } from "https://esm.sh/@ucanto/validator@7.0.0"
 export { ed25519 } from "https://esm.sh/@ucanto/principal@7.0.0"
 export { sha256 } from "https://esm.sh/@ucanto/core@7.0.1"
